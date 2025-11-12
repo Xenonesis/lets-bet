@@ -34,7 +34,9 @@ class AppConstants {
   static const int maxPageSize = 100;
   
   // Local Storage Keys
-  static const String userTokenKey = 'user_token';
+  static const String accessTokenKey = 'access_token';
+  static const String refreshTokenKey = 'refresh_token';
+  static const String userTokenKey = 'user_token'; // deprecated, kept for compatibility
   static const String themeKey = 'app_theme';
   static const String languageKey = 'app_language';
   static const String biometricKey = 'biometric_enabled';

@@ -15,20 +15,24 @@ class AuthService {
   final ConvexService _convexService = ConvexService();
   final MockDataService _mockService = MockDataService();
   User? _currentUser;
-  String? _authToken;
+  String? _accessToken;
+  String? _refreshToken;
 
   User? get currentUser => _currentUser;
-  String? get authToken => _authToken;
-  bool get isAuthenticated => _currentUser != null && _authToken != null;
+  String? get authToken => _accessToken;
+  bool get isAuthenticated => _currentUser != null && _accessToken != null;
 
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
-    _authToken = prefs.getString(AppConstants.userTokenKey);
+    _accessToken = prefs.getString(AppConstants.accessTokenKey);
+    _refreshToken = prefs.getString(AppConstants.refreshTokenKey);
     
-    if (_authToken != null) {
+    if (_accessToken != null) {
       try {
-        if (!Jwt.isExpired(_authToken!)) {
+        if (!Jwt.isExpired(_accessToken!)) {
           await _loadUserFromToken();
+        } else if (_refreshToken != null && !Jwt.isExpired(_refreshToken!)) {
+          await _refreshAccessToken();
         } else {
           await logout();
         }
@@ -40,11 +44,19 @@ class AuthService {
 
   Future<User> login(String email, String password) async {
     try {
-      // Using mock service for now
-      _currentUser = await _mockService.login(email, password);
-      _authToken = 'mock_token_${_currentUser!.id}_${DateTime.now().millisecondsSinceEpoch}';
+      final response = await _convexService.mutation<Map<String, dynamic>>(
+        'auth:login',
+        {
+          'email': email.toLowerCase(),
+          'password': password,
+        },
+      );
 
-      await _saveAuthToken(_authToken!);
+      _currentUser = User.fromJson(response['user']);
+      _accessToken = response['accessToken'];
+      _refreshToken = response['refreshToken'];
+
+      await _saveTokens();
       
       return _currentUser!;
     } catch (e) {
@@ -63,19 +75,25 @@ class AuthService {
     String? phone,
   }) async {
     try {
-      // Using mock service for now
-      _currentUser = await _mockService.register(
-        email: email,
-        username: username,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-        dateOfBirth: dateOfBirth,
-        country: country,
+      final response = await _convexService.mutation<Map<String, dynamic>>(
+        'auth:register',
+        {
+          'email': email.toLowerCase(),
+          'username': username,
+          'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
+          'dateOfBirth': dateOfBirth,
+          'country': country,
+          if (phone != null) 'phone': phone,
+        },
       );
-      _authToken = 'mock_token_${_currentUser!.id}_${DateTime.now().millisecondsSinceEpoch}';
 
-      await _saveAuthToken(_authToken!);
+      _currentUser = User.fromJson(response['user']);
+      _accessToken = response['accessToken'];
+      _refreshToken = response['refreshToken'];
+
+      await _saveTokens();
       
       return _currentUser!;
     } catch (e) {
@@ -85,10 +103,12 @@ class AuthService {
 
   Future<void> logout() async {
     _currentUser = null;
-    _authToken = null;
+    _accessToken = null;
+    _refreshToken = null;
     
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(AppConstants.userTokenKey);
+    await prefs.remove(AppConstants.accessTokenKey);
+    await prefs.remove(AppConstants.refreshTokenKey);
   }
 
   Future<void> resetPassword(String email) async {
@@ -137,15 +157,12 @@ class AuthService {
         throw AuthException('User not authenticated');
       }
 
-      final currentHashedPassword = _hashPassword(currentPassword);
-      final newHashedPassword = _hashPassword(newPassword);
-
       await _convexService.mutation<Map<String, dynamic>>(
         'auth:changePassword',
         {
           'userId': _currentUser!.id,
-          'currentPassword': currentHashedPassword,
-          'newPassword': newHashedPassword,
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
         },
       );
     } catch (e) {
@@ -188,25 +205,47 @@ class AuthService {
     }
   }
 
-  String _hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
+  Future<void> _refreshAccessToken() async {
+    if (_refreshToken == null) return;
+
+    try {
+      final response = await _convexService.mutation<Map<String, dynamic>>(
+        'auth:refreshToken',
+        {'refreshToken': _refreshToken},
+      );
+
+      _accessToken = response['accessToken'];
+      await _saveTokens();
+    } catch (e) {
+      await logout();
+      throw AuthException('Token refresh failed: $e');
+    }
   }
 
-  Future<void> _saveAuthToken(String token) async {
+  Future<void> _saveTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.userTokenKey, token);
+    if (_accessToken != null) {
+      await prefs.setString(AppConstants.accessTokenKey, _accessToken!);
+    }
+    if (_refreshToken != null) {
+      await prefs.setString(AppConstants.refreshTokenKey, _refreshToken!);
+    }
   }
 
   Future<void> _loadUserFromToken() async {
-    if (_authToken == null) return;
+    if (_accessToken == null) return;
 
     try {
-      // For mock data, just load the default test user
-      if (_authToken!.startsWith('mock_token_')) {
-        _currentUser = MockDataService.mockUser;
-      }
+      final payload = Jwt.parseJwt(_accessToken!);
+      final userId = payload['userId'];
+      
+      // Query user from Convex
+      final userData = await _convexService.query<Map<String, dynamic>>(
+        'users:getById',
+        {'userId': userId},
+      );
+      
+      _currentUser = User.fromJson(userData);
     } catch (e) {
       throw AuthException('Failed to load user: $e');
     }

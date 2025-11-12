@@ -1,12 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../core/providers/app_providers.dart';
 
-class WalletScreen extends ConsumerWidget {
+class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends ConsumerState<WalletScreen> {
+  late Razorpay _razorpay;
+  double? _pendingDepositAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    try {
+      final user = ref.read(currentUserProvider);
+      if (user == null || _pendingDepositAmount == null) return;
+
+      await ref.read(convexServiceProvider).mutation<Map<String, dynamic>>(
+        'wallets:deposit',
+        {
+          'userId': user.id,
+          'amount': _pendingDepositAmount!,
+          'paymentMethod': 'Razorpay',
+          'reference': response.paymentId ?? response.orderId ?? 'unknown',
+        },
+      );
+
+      _pendingDepositAmount = null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Payment successful! Wallet updated.')),
+      );
+      ref.refresh(walletProvider);
+    } catch (e) {
+      _pendingDepositAmount = null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update wallet: $e')),
+      );
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment failed: ${response.message}')),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('External wallet: ${response.walletName}')),
+    );
+  }
+
+  void _openCheckout(double amount) {
+    _pendingDepositAmount = amount;
+    var options = {
+      'key': 'rzp_test_your_key_here', // TODO: Use actual key from env
+      'amount': (amount * 100).toInt(), // Amount in paise
+      'name': 'SportsBet Pro',
+      'description': 'Wallet Deposit',
+      'prefill': {
+        'contact': '8888888888',
+        'email': 'test@razorpay.com'
+      },
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final walletAsync = ref.watch(walletProvider);
     
     return Scaffold(
@@ -237,27 +324,45 @@ class WalletScreen extends ConsumerWidget {
   }
 
   void _showDepositDialog(BuildContext context) {
+    final amountController = TextEditingController();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Deposit Funds'),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Deposit functionality will be integrated with payment gateways.'),
-            SizedBox(height: 16),
-            Text('Available payment methods:'),
-            SizedBox(height: 8),
-            Text('• UPI'),
-            Text('• Credit/Debit Cards'),
-            Text('• Net Banking'),
-            Text('• Wallets'),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Amount (₹)',
+                hintText: 'Enter amount to deposit',
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Payment methods: UPI, Cards, Net Banking, Wallets'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final amount = double.tryParse(amountController.text);
+              if (amount != null && amount > 0) {
+                Navigator.of(context).pop();
+                _openCheckout(amount);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid amount')),
+                );
+              }
+            },
+            child: const Text('Deposit'),
           ),
         ],
       ),
@@ -265,24 +370,88 @@ class WalletScreen extends ConsumerWidget {
   }
 
   void _showWithdrawDialog(BuildContext context) {
+    final amountController = TextEditingController();
+    final upiController = TextEditingController();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Withdraw Funds'),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Withdrawal functionality will be integrated with payment systems.'),
-            SizedBox(height: 16),
-            Text('Withdrawal processing time: 1-3 business days'),
-            SizedBox(height: 8),
-            Text('Minimum withdrawal: ₹100'),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Amount (₹)',
+                hintText: 'Enter amount to withdraw (min ₹100)',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: upiController,
+              decoration: const InputDecoration(
+                labelText: 'UPI ID',
+                hintText: 'Enter your UPI ID (e.g., user@upi)',
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Processing time: 1-3 business days\nMinimum withdrawal: ₹100',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final amount = double.tryParse(amountController.text);
+              final upiId = upiController.text.trim();
+              
+              if (amount == null || amount < 100) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid amount (minimum ₹100)')),
+                );
+                return;
+              }
+              
+              if (upiId.isEmpty || !upiId.contains('@')) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid UPI ID')),
+                );
+                return;
+              }
+              
+              try {
+                final user = ref.read(currentUserProvider);
+                if (user == null) return;
+                
+                await ref.read(convexServiceProvider).mutation<Map<String, dynamic>>(
+                  'wallets:withdraw',
+                  {
+                    'userId': user.id,
+                    'amount': amount,
+                    'upiId': upiId,
+                  },
+                );
+                
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Withdrawal request submitted successfully')),
+                );
+                ref.refresh(walletProvider);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to process withdrawal: $e')),
+                );
+              }
+            },
+            child: const Text('Withdraw'),
           ),
         ],
       ),

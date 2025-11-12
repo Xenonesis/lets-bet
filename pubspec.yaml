@@ -57,6 +57,7 @@ dependencies:
   # Authentication & Security
   crypto: ^3.0.3
   jwt_decode: ^0.3.1
+  razorpay_flutter: ^1.4.0
 
   # UI Components
   shimmer: ^3.0.0

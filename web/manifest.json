@@ -1,13 +1,16 @@
 {
-    "name": "let",
-    "short_name": "let",
+    "name": "SportsBet Pro",
+    "short_name": "SportsBet",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Professional Sports Betting Platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "categories": ["sports", "entertainment", "finance"],
+    "lang": "en",
+    "scope": "/",
     "icons": [
         {
             "src": "icons/Icon-192.png",

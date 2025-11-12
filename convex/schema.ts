@@ -18,6 +18,9 @@ export default defineSchema({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("risk_manager")),
     createdAt: v.number(),
     lastLogin: v.optional(v.number()),
+    refreshToken: v.optional(v.string()),
+    failedLoginAttempts: v.optional(v.number()),
+    lastFailedLogin: v.optional(v.number()),
   })
   .index("by_email", ["email"])
   .index("by_username", ["username"]),

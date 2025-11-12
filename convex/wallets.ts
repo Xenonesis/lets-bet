@@ -60,11 +60,7 @@ export const withdraw = mutation({
   args: {
     userId: v.id("users"),
     amount: v.number(),
-    bankDetails: v.object({
-      accountNumber: v.string(),
-      ifsc: v.string(),
-      accountHolderName: v.string(),
-    }),
+    upiId: v.string(),
   },
   handler: async (ctx, args) => {
     const wallet = await ctx.db
@@ -84,6 +80,78 @@ export const withdraw = mutation({
       throw new Error("Minimum withdrawal amount is ₹100");
     }
 
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Create contact in Razorpay
+    const contactResponse = await fetch('https://api.razorpay.com/v1/contacts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`)}`
+      },
+      body: JSON.stringify({
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        contact: user.phone || '',
+        type: 'customer',
+        reference_id: user._id.toString()
+      })
+    });
+
+    const contact = await contactResponse.json();
+    if (!contact.id) {
+      throw new Error('Failed to create contact');
+    }
+
+    // Create fund account
+    const fundAccountResponse = await fetch('https://api.razorpay.com/v1/fund_accounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`)}`
+      },
+      body: JSON.stringify({
+        contact_id: contact.id,
+        account_type: 'vpa',
+        vpa: { address: args.upiId }
+      })
+    });
+
+    const fundAccount = await fundAccountResponse.json();
+    if (!fundAccount.id) {
+      throw new Error('Failed to create fund account');
+    }
+
+    // Create payout
+    const idempotencyKey = crypto.randomUUID();
+    const payoutResponse = await fetch('https://api.razorpay.com/v1/payouts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Payout-Idempotency': idempotencyKey,
+        'Authorization': `Basic ${btoa(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`)}`
+      },
+      body: JSON.stringify({
+        account_number: process.env.RAZORPAY_ACCOUNT_NUMBER,
+        fund_account_id: fundAccount.id,
+        amount: args.amount * 100, // to paise
+        currency: 'INR',
+        mode: 'UPI',
+        purpose: 'payout',
+        queue_if_low_balance: true,
+        reference_id: `withdraw_${Date.now()}`,
+        narration: 'Withdrawal from SportsBet Pro'
+      })
+    });
+
+    const payout = await payoutResponse.json();
+    if (!payout.id) {
+      throw new Error('Failed to create payout');
+    }
+
     const newBalance = wallet.balance - args.amount;
 
     // Update wallet balance
@@ -99,8 +167,9 @@ export const withdraw = mutation({
       amount: -args.amount,
       balanceBefore: wallet.balance,
       balanceAfter: newBalance,
-      status: "pending", // Withdrawals need admin approval
-      description: "Withdrawal request",
+      status: payout.status === 'queued' ? 'pending' : 'processing',
+      reference: payout.id,
+      description: `Withdrawal to UPI: ${args.upiId}`,
       createdAt: Date.now(),
     });
 
