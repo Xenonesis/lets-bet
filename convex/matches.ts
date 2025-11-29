@@ -1,6 +1,29 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Helper function to format match for Flutter
+function formatMatchForFlutter(match: any) {
+  if (!match) return null;
+  return {
+    id: match._id,
+    sportId: match.sportId,
+    leagueId: match.leagueId,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+    homeTeamLogo: match.homeTeamLogo || null,
+    awayTeamLogo: match.awayTeamLogo || null,
+    startTime: new Date(match.startTime).toISOString(),
+    status: match.status,
+    score: match.score || null,
+    liveStats: match.liveStats || null,
+    isPreMatchEnabled: match.isPreMatchEnabled,
+    isLiveEnabled: match.isLiveEnabled,
+    isFeatured: match.isFeatured,
+    createdBy: match.createdBy,
+    createdAt: new Date(match.createdAt).toISOString(),
+  };
+}
+
 // Query all matches
 export const list = query({
   args: { 
@@ -12,10 +35,8 @@ export const list = query({
       .order("desc")
       .collect();
     
-    if (args.limit) {
-      return matches.slice(0, args.limit);
-    }
-    return matches;
+    const result = args.limit ? matches.slice(0, args.limit) : matches;
+    return result.map(formatMatchForFlutter);
   },
 });
 
@@ -35,7 +56,8 @@ export const listByLeague = query({
       matchQuery = matchQuery.take(args.limit);
     }
     
-    return await matchQuery.collect();
+    const matches = await matchQuery.collect();
+    return matches.map(formatMatchForFlutter);
   },
 });
 
@@ -52,7 +74,8 @@ export const getFeatured = query({
       matchQuery = matchQuery.take(args.limit);
     }
     
-    return await matchQuery.collect();
+    const matches = await matchQuery.collect();
+    return matches.map(formatMatchForFlutter);
   },
 });
 
@@ -69,7 +92,8 @@ export const getLive = query({
       matchQuery = matchQuery.take(args.limit);
     }
     
-    return await matchQuery.collect();
+    const matches = await matchQuery.collect();
+    return matches.map(formatMatchForFlutter);
   },
 });
 
@@ -100,7 +124,8 @@ export const getUpcoming = query({
       matchQuery = matchQuery.take(args.limit);
     }
     
-    return await matchQuery.collect();
+    const matches = await matchQuery.collect();
+    return matches.map(formatMatchForFlutter);
   },
 });
 
@@ -108,7 +133,8 @@ export const getUpcoming = query({
 export const getById = query({
   args: { matchId: v.id("matches") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.matchId);
+    const match = await ctx.db.get(args.matchId);
+    return formatMatchForFlutter(match);
   },
 });
 

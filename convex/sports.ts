@@ -1,15 +1,32 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Helper function to format sport for Flutter
+function formatSportForFlutter(sport: any) {
+  if (!sport) return null;
+  return {
+    id: sport._id,
+    name: sport.name,
+    code: sport.code,
+    icon: sport.icon,
+    themeColor: sport.themeColor,
+    displayOrder: sport.displayOrder,
+    isActive: sport.isActive,
+    createdBy: sport.createdBy,
+    createdAt: new Date(sport.createdAt).toISOString(),
+  };
+}
+
 // Query all active sports
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const sports = await ctx.db
       .query("sports")
       .filter((q) => q.eq(q.field("isActive"), true))
       .order("asc")
       .collect();
+    return sports.map(formatSportForFlutter);
   },
 });
 
@@ -17,7 +34,8 @@ export const list = query({
 export const getById = query({
   args: { sportId: v.id("sports") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.sportId);
+    const sport = await ctx.db.get(args.sportId);
+    return formatSportForFlutter(sport);
   },
 });
 

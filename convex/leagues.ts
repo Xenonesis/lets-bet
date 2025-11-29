@@ -1,11 +1,30 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Helper function to format league for Flutter
+function formatLeagueForFlutter(league: any) {
+  if (!league) return null;
+  return {
+    id: league._id,
+    sportId: league.sportId,
+    name: league.name,
+    code: league.code,
+    logo: league.logo,
+    country: league.country,
+    isActive: league.isActive,
+    displayOrder: league.displayOrder,
+    seasonStart: league.seasonStart || null,
+    seasonEnd: league.seasonEnd || null,
+    createdBy: league.createdBy,
+    createdAt: new Date(league.createdAt).toISOString(),
+  };
+}
+
 // Query leagues by sport
 export const listBySport = query({
   args: { sportId: v.id("sports") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const leagues = await ctx.db
       .query("leagues")
       .filter((q) => 
         q.and(
@@ -15,6 +34,7 @@ export const listBySport = query({
       )
       .order("asc")
       .collect();
+    return leagues.map(formatLeagueForFlutter);
   },
 });
 
@@ -22,7 +42,8 @@ export const listBySport = query({
 export const getById = query({
   args: { leagueId: v.id("leagues") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.leagueId);
+    const league = await ctx.db.get(args.leagueId);
+    return formatLeagueForFlutter(league);
   },
 });
 

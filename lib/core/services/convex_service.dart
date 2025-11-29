@@ -35,7 +35,12 @@ class ConvexService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          return data['value'] as T;
+          final value = data['value'];
+          // Handle List types properly
+          if (value is List) {
+            return value.map((e) => e as Map<String, dynamic>).toList() as T;
+          }
+          return value as T;
         } else {
           String errorMessage = data['errorMessage'] ?? 'Unknown error';
           if (errorMessage.contains('Uncaught Error:')) {
