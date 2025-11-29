@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/models/betting.dart';
+import '../../../core/widgets/error_feedback.dart';
+import '../../../core/utils/error_handler.dart';
 import '../widgets/bet_slip_item_card.dart';
 import '../widgets/bet_type_selector.dart';
 
@@ -27,15 +29,19 @@ class _BetSlipScreenState extends ConsumerState<BetSlipScreen> {
     final user = ref.read(currentUserProvider);
     
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please login to place bets')),
+      ErrorFeedback.showWarning(
+        context,
+        'Please login to place bets',
+        title: 'Authentication Required',
       );
       return;
     }
     
     if (!betSlip.isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please check your bet slip')),
+      ErrorFeedback.showWarning(
+        context,
+        'Please check your bet slip and ensure all selections are valid',
+        title: 'Invalid Bet Slip',
       );
       return;
     }
@@ -62,21 +68,14 @@ class _BetSlipScreenState extends ConsumerState<BetSlipScreen> {
       
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Bet placed successfully!'),
-            backgroundColor: Colors.green,
-          ),
+        ErrorFeedback.showSuccess(
+          context,
+          'Your bet has been placed successfully! Good luck!',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to place bet: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ErrorFeedback.showException(context, e);
       }
     } finally {
       if (mounted) {

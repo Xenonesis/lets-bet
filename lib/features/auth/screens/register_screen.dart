@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/widgets/error_feedback.dart';
+import '../../../core/utils/error_handler.dart';
 import '../widgets/auth_form_field.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -45,11 +47,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_acceptedTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the terms and conditions'),
-          backgroundColor: Colors.red,
-        ),
+      ErrorFeedback.showWarning(
+        context,
+        'Please accept the terms and conditions to continue',
+        title: 'Terms Required',
       );
       return;
     }
@@ -68,16 +69,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       
       if (mounted) {
+        ErrorFeedback.showSuccess(
+          context,
+          'Account created successfully! Welcome aboard.',
+        );
         AppNavigation.toHome(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ErrorFeedback.showException(context, e);
       }
     } finally {
       if (mounted) {

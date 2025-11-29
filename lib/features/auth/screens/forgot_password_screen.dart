@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/widgets/error_feedback.dart';
 import '../widgets/auth_form_field.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -34,15 +35,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       
       if (mounted) {
         setState(() => _emailSent = true);
+        ErrorFeedback.showSuccess(
+          context,
+          'Password reset instructions have been sent to your email',
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ErrorFeedback.showException(context, e);
       }
     } finally {
       if (mounted) {

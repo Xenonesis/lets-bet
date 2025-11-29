@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../core/providers/app_providers.dart';
+import '../../../core/widgets/error_feedback.dart';
+import '../../../core/utils/error_handler.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -45,27 +47,34 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
       );
 
       _pendingDepositAmount = null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment successful! Wallet updated.')),
+      ErrorFeedback.showSuccess(
+        context,
+        'Payment successful! Your wallet has been updated.',
       );
       ref.refresh(walletProvider);
     } catch (e) {
       _pendingDepositAmount = null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update wallet: $e')),
+      ErrorFeedback.showError(
+        context,
+        'Failed to update wallet. Please contact support if amount was deducted.',
+        title: 'Wallet Update Failed',
       );
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment failed: ${response.message}')),
+    ErrorFeedback.showError(
+      context,
+      response.message ?? 'Payment could not be processed. Please try again.',
+      title: 'Payment Failed',
     );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('External wallet: ${response.walletName}')),
+    ErrorFeedback.showInfo(
+      context,
+      'Payment will be processed through ${response.walletName}',
+      title: 'External Wallet',
     );
   }
 
@@ -357,8 +366,9 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 Navigator.of(context).pop();
                 _openCheckout(amount);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid amount')),
+                ErrorFeedback.showWarning(
+                  context,
+                  'Please enter a valid deposit amount',
                 );
               }
             },
@@ -414,15 +424,17 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
               final upiId = upiController.text.trim();
               
               if (amount == null || amount < 100) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid amount (minimum ₹100)')),
+                ErrorFeedback.showWarning(
+                  context,
+                  'Please enter a valid amount (minimum ₹100)',
                 );
                 return;
               }
               
               if (upiId.isEmpty || !upiId.contains('@')) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid UPI ID')),
+                ErrorFeedback.showWarning(
+                  context,
+                  'Please enter a valid UPI ID (e.g., user@paytm)',
                 );
                 return;
               }
@@ -441,14 +453,13 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                 );
                 
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Withdrawal request submitted successfully')),
+                ErrorFeedback.showSuccess(
+                  context,
+                  'Withdrawal request submitted successfully. It will be processed within 24-48 hours.',
                 );
                 ref.refresh(walletProvider);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to process withdrawal: $e')),
-                );
+                ErrorFeedback.showException(context, e);
               }
             },
             child: const Text('Withdraw'),

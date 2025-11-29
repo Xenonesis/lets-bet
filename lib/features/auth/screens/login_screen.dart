@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/widgets/error_feedback.dart';
+import '../../../core/utils/error_handler.dart';
 import '../widgets/auth_form_field.dart';
 import '../widgets/social_login_button.dart';
 
@@ -38,16 +40,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       
       if (mounted) {
+        ErrorFeedback.showSuccess(
+          context,
+          'Welcome back! Login successful.',
+        );
         AppNavigation.toHome(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ErrorFeedback.showException(context, e);
       }
     } finally {
       if (mounted) {
