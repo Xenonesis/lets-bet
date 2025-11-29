@@ -1,11 +1,8 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import '../constants/app_constants.dart';
 import '../models/user.dart';
 import 'convex_service.dart';
-import 'mock_data_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -13,7 +10,6 @@ class AuthService {
   AuthService._internal();
 
   final ConvexService _convexService = ConvexService();
-  final MockDataService _mockService = MockDataService();
   User? _currentUser;
   String? _accessToken;
   String? _refreshToken;
@@ -59,8 +55,10 @@ class AuthService {
       await _saveTokens();
       
       return _currentUser!;
+    } on ConvexException catch (e) {
+      throw AuthException(e.message);
     } catch (e) {
-      throw AuthException('Login failed: $e');
+      throw AuthException('Login failed. Please try again.');
     }
   }
 
@@ -96,8 +94,10 @@ class AuthService {
       await _saveTokens();
       
       return _currentUser!;
+    } on ConvexException catch (e) {
+      throw AuthException(e.message);
     } catch (e) {
-      throw AuthException('Registration failed: $e');
+      throw AuthException('Registration failed. Please try again.');
     }
   }
 

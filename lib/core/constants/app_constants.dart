@@ -4,8 +4,8 @@ class AppConstants {
   static const String appVersion = '1.0.0';
   
   // Convex Configuration
-  static const String convexUrl = 'https://judicious-caterpillar-677.convex.cloud';
-  static const String convexApiKey = 'prod:judicious-caterpillar-677|eyJ2MiI6ImVkZDdjZGQxZmUyOTQ0Njg4MTQ3MTBkZTMwMDRjNThkIn0=';
+  static const String convexUrl = 'https://brainy-frog-582.convex.cloud';
+  static const String convexApiKey = '';
   
   // API Endpoints
   static const String baseUrl = 'https://api.sportsbet.com';

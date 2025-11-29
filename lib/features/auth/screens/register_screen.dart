@@ -94,7 +94,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       lastDate: DateTime.now().subtract(const Duration(days: 6570)),
     );
     if (picked != null) {
-      _dobController.text = "${picked.day}/${picked.month}/${picked.year}";
+      // Format as YYYY-MM-DD for backend compatibility
+      _dobController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
     }
   }
 

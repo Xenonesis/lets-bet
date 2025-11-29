@@ -37,13 +37,21 @@ class ConvexService {
         if (data['status'] == 'success') {
           return data['value'] as T;
         } else {
-          throw ConvexException('Query failed: ${data['errorMessage']}');
+          String errorMessage = data['errorMessage'] ?? 'Unknown error';
+          if (errorMessage.contains('Uncaught Error:')) {
+            final match = RegExp(r'Uncaught Error:\s*(.+)$').firstMatch(errorMessage);
+            if (match != null) {
+              errorMessage = match.group(1)?.trim() ?? errorMessage;
+            }
+          }
+          throw ConvexException(errorMessage);
         }
       } else {
-        throw ConvexException('Query failed: ${response.statusCode} - ${response.body}');
+        throw ConvexException('Server error: ${response.statusCode}');
       }
     } catch (e) {
-      throw ConvexException('Query error: $e');
+      if (e is ConvexException) rethrow;
+      throw ConvexException('Network error: Please check your connection');
     }
   }
 
@@ -67,13 +75,21 @@ class ConvexService {
         if (data['status'] == 'success') {
           return data['value'] as T;
         } else {
-          throw ConvexException('Mutation failed: ${data['errorMessage']}');
+          String errorMessage = data['errorMessage'] ?? 'Unknown error';
+          if (errorMessage.contains('Uncaught Error:')) {
+            final match = RegExp(r'Uncaught Error:\s*(.+)$').firstMatch(errorMessage);
+            if (match != null) {
+              errorMessage = match.group(1)?.trim() ?? errorMessage;
+            }
+          }
+          throw ConvexException(errorMessage);
         }
       } else {
-        throw ConvexException('Mutation failed: ${response.statusCode} - ${response.body}');
+        throw ConvexException('Server error: ${response.statusCode}');
       }
     } catch (e) {
-      throw ConvexException('Mutation error: $e');
+      if (e is ConvexException) rethrow;
+      throw ConvexException('Network error: Please check your connection');
     }
   }
 
@@ -97,13 +113,23 @@ class ConvexService {
         if (data['status'] == 'success') {
           return data['value'] as T;
         } else {
-          throw ConvexException('Action failed: ${data['errorMessage']}');
+          // Extract the actual error message from Convex response
+          String errorMessage = data['errorMessage'] ?? 'Unknown error';
+          // Parse error messages like "Uncaught Error: Username is already taken"
+          if (errorMessage.contains('Uncaught Error:')) {
+            final match = RegExp(r'Uncaught Error:\s*(.+)$').firstMatch(errorMessage);
+            if (match != null) {
+              errorMessage = match.group(1)?.trim() ?? errorMessage;
+            }
+          }
+          throw ConvexException(errorMessage);
         }
       } else {
-        throw ConvexException('Action failed: ${response.statusCode} - ${response.body}');
+        throw ConvexException('Action failed: ${response.statusCode}');
       }
     } catch (e) {
-      throw ConvexException('Action error: $e');
+      if (e is ConvexException) rethrow;
+      throw ConvexException('Network error: Please check your connection');
     }
   }
 
