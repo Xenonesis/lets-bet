@@ -26,11 +26,13 @@ export const listByUser = query({
     
     query = query.order("desc");
     
+    const results = await query.collect();
+    
     if (args.limit) {
-      query = query.take(args.limit);
+      return results.slice(0, args.limit);
     }
     
-    return await query.collect();
+    return results;
   },
 });
 

@@ -15,46 +15,52 @@ class MainScreen extends ConsumerWidget {
     
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedTab,
-        onTap: (index) {
-          ref.read(selectedTabProvider.notifier).state = index;
-          switch (index) {
-            case 0:
-              context.go('/home');
-              break;
-            case 1:
-              context.go('/sports');
-              break;
-            case 2:
-              context.go('/live');
-              break;
-            case 3:
-              context.go('/profile');
-              break;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sports_soccer_outlined),
-            activeIcon: Icon(Icons.sports_soccer),
-            label: 'Sports',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.live_tv_outlined),
-            activeIcon: Icon(Icons.live_tv),
-            label: 'Live',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(height: 1),
+          BottomNavigationBar(
+            currentIndex: selectedTab,
+            onTap: (index) {
+              ref.read(selectedTabProvider.notifier).state = index;
+              switch (index) {
+                case 0:
+                  context.go('/home');
+                  break;
+                case 1:
+                  context.go('/sports');
+                  break;
+                case 2:
+                  context.go('/live');
+                  break;
+                case 3:
+                  context.go('/profile');
+                  break;
+              }
+            },
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.sports_outlined),
+                activeIcon: Icon(Icons.sports),
+                label: 'Sports',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.play_circle_outline),
+                activeIcon: Icon(Icons.play_circle),
+                label: 'Live',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
           ),
         ],
       ),

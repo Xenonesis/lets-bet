@@ -93,14 +93,29 @@ class SportsBetApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
-    final isDarkMode = ref.watch(themeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+
+    // Convert theme mode string to ThemeMode enum
+    ThemeMode selectedThemeMode;
+    switch (themeMode) {
+      case 'light':
+        selectedThemeMode = ThemeMode.light;
+        break;
+      case 'dark':
+        selectedThemeMode = ThemeMode.dark;
+        break;
+      case 'system':
+      default:
+        selectedThemeMode = ThemeMode.system;
+        break;
+    }
 
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: selectedThemeMode,
       routerConfig: router,
       builder: (context, child) {
         return MediaQuery(

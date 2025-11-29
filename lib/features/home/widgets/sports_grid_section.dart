@@ -19,17 +19,24 @@ class SportsGridSection extends ConsumerWidget {
           children: [
             Text(
               'Sports',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             TextButton(
               onPressed: () => AppNavigation.toSports(context),
-              child: const Text('View All'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('View All', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: Theme.of(context).colorScheme.primary),
+                ],
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         sportsAsync.when(
           data: (sports) {
             if (sports.isEmpty) {
@@ -45,23 +52,35 @@ class SportsGridSection extends ConsumerWidget {
               );
             }
             
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 2.5,
-              ),
-              itemCount: sports.length > 6 ? 6 : sports.length,
-              itemBuilder: (context, index) {
-                return SportCard(
-                  sport: sports[index],
-                  onTap: () => AppNavigation.toSportDetail(
-                    context,
-                    sports[index].id,
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                // Responsive grid columns
+                int crossAxisCount = 2;
+                if (constraints.maxWidth >= 900) {
+                  crossAxisCount = 4;
+                } else if (constraints.maxWidth >= 600) {
+                  crossAxisCount = 3;
+                }
+                
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 2.5,
                   ),
+                  itemCount: sports.length > 6 ? 6 : sports.length,
+                  itemBuilder: (context, index) {
+                    return SportCard(
+                      sport: sports[index],
+                      onTap: () => AppNavigation.toSportDetail(
+                        context,
+                        sports[index].id,
+                      ),
+                    );
+                  },
                 );
               },
             );

@@ -10,7 +10,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
-    final isDarkMode = ref.watch(themeProvider);
+    final themeMode = ref.watch(themeModeProvider);
     
     return Scaffold(
       appBar: AppBar(
@@ -144,18 +144,24 @@ class ProfileScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   ProfileMenuItem(
-                    icon: isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    icon: Icons.palette_outlined,
                     title: 'Theme',
-                    subtitle: isDarkMode ? 'Switch to light mode' : 'Switch to dark mode',
-                    trailing: Switch(
-                      value: isDarkMode,
+                    subtitle: 'Light, Dark, or System',
+                    trailing: DropdownButton<String>(
+                      value: themeMode,
+                      underline: const SizedBox(),
+                      items: const [
+                        DropdownMenuItem(value: 'light', child: Text('Light')),
+                        DropdownMenuItem(value: 'dark', child: Text('Dark')),
+                        DropdownMenuItem(value: 'system', child: Text('System')),
+                      ],
                       onChanged: (value) {
-                        ref.read(themeProvider.notifier).state = value;
+                        if (value != null) {
+                          ref.read(themeModeProvider.notifier).state = value;
+                        }
                       },
                     ),
-                    onTap: () {
-                      ref.read(themeProvider.notifier).state = !isDarkMode;
-                    },
+                    onTap: null,
                   ),
                   
                   const Divider(height: 1),

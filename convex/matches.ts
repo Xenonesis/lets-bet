@@ -47,17 +47,14 @@ export const listByLeague = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let matchQuery = ctx.db
+    const matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("leagueId"), args.leagueId))
       .order("desc");
     
-    if (args.limit) {
-      matchQuery = matchQuery.take(args.limit);
-    }
-    
     const matches = await matchQuery.collect();
-    return matches.map(formatMatchForFlutter);
+    const result = args.limit ? matches.slice(0, args.limit) : matches;
+    return result.map(formatMatchForFlutter);
   },
 });
 
@@ -65,17 +62,14 @@ export const listByLeague = query({
 export const getFeatured = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    let matchQuery = ctx.db
+    const matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("isFeatured"), true))
       .order("asc");
     
-    if (args.limit) {
-      matchQuery = matchQuery.take(args.limit);
-    }
-    
     const matches = await matchQuery.collect();
-    return matches.map(formatMatchForFlutter);
+    const result = args.limit ? matches.slice(0, args.limit) : matches;
+    return result.map(formatMatchForFlutter);
   },
 });
 
@@ -83,17 +77,14 @@ export const getFeatured = query({
 export const getLive = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    let matchQuery = ctx.db
+    const matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("status"), "live"))
       .order("asc");
     
-    if (args.limit) {
-      matchQuery = matchQuery.take(args.limit);
-    }
-    
     const matches = await matchQuery.collect();
-    return matches.map(formatMatchForFlutter);
+    const result = args.limit ? matches.slice(0, args.limit) : matches;
+    return result.map(formatMatchForFlutter);
   },
 });
 
@@ -120,12 +111,9 @@ export const getUpcoming = query({
     
     matchQuery = matchQuery.order("asc");
     
-    if (args.limit) {
-      matchQuery = matchQuery.take(args.limit);
-    }
-    
     const matches = await matchQuery.collect();
-    return matches.map(formatMatchForFlutter);
+    const result = args.limit ? matches.slice(0, args.limit) : matches;
+    return result.map(formatMatchForFlutter);
   },
 });
 

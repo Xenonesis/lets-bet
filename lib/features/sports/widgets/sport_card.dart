@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/sport.dart';
+import '../../../core/animations/app_animations.dart';
 
 class SportCard extends StatelessWidget {
   final Sport sport;
@@ -14,25 +15,13 @@ class SportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color themeColor = Color(int.parse(sport.themeColor.replaceFirst('#', '0xFF')));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [
-                themeColor.withOpacity(0.1),
-                themeColor.withOpacity(0.05),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          padding: const EdgeInsets.all(16),
+    return AnimatedCard(
+      onTap: onTap,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               // Sport Icon
@@ -40,7 +29,7 @@ class SportCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: themeColor.withOpacity(0.2),
+                  color: themeColor.withOpacity(isDark ? 0.2 : 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
@@ -56,7 +45,6 @@ class SportCard extends StatelessWidget {
                   sport.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: themeColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -66,8 +54,8 @@ class SportCard extends StatelessWidget {
               // Arrow
               Icon(
                 Icons.arrow_forward_ios,
-                size: 16,
-                color: themeColor,
+                size: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ],
           ),

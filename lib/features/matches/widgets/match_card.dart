@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/match.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/animations/app_animations.dart';
 
 class MatchCard extends StatelessWidget {
   final Match match;
@@ -9,37 +10,106 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AnimatedCard(
       onTap: () {
         // Navigate to match details
         // AppRouter.goToMatchDetails(context, match.id);
       },
       child: Card(
-        elevation: 2,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(match.status.name.toUpperCase()),
-              const SizedBox(height: 12),
+              // Status Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(match.status).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  match.status.name.toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: _getStatusColor(match.status),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Teams
               Row(
                 children: [
-                  Expanded(child: Text(match.homeTeam)),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text('VS'),
+                  Expanded(
+                    child: Text(
+                      match.homeTeam,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  Expanded(child: Text(match.awayTeam)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'VS',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      match.awayTeam,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.right,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text('Quick bets coming soon'),
+              
+              const SizedBox(height: 16),
+              
+              // Odds placeholder
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'Tap to view odds',
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(MatchStatus status) {
+    switch (status) {
+      case MatchStatus.live:
+        return const Color(0xFFFF3B30);
+      case MatchStatus.scheduled:
+        return const Color(0xFF0066FF);
+      case MatchStatus.halftime:
+        return const Color(0xFFFF9500);
+      case MatchStatus.suspended:
+        return const Color(0xFFFFCC00);
+      case MatchStatus.finished:
+        return const Color(0xFF8E8E93);
+      case MatchStatus.cancelled:
+        return const Color(0xFF8E8E93);
+    }
   }
 }
 

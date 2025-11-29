@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/app_providers.dart';
+import '../../../core/animations/app_animations.dart';
 import '../../matches/widgets/match_card.dart';
 
 class FeaturedMatchesSection extends ConsumerWidget {
@@ -18,19 +19,26 @@ class FeaturedMatchesSection extends ConsumerWidget {
           children: [
             Text(
               'Featured Matches',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             TextButton(
               onPressed: () {
                 // TODO: Navigate to all matches
               },
-              child: const Text('View All'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('View All', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: Theme.of(context).colorScheme.primary),
+                ],
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         featuredMatchesAsync.when(
           data: (matches) {
             if (matches.isEmpty) {
@@ -53,13 +61,17 @@ class FeaturedMatchesSection extends ConsumerWidget {
                 itemCount: matches.length,
                 padding: const EdgeInsets.only(right: 16),
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      left: index == 0 ? 0 : 12,
-                    ),
-                    child: SizedBox(
-                      width: 280,
-                      child: MatchCard(match: matches[index]),
+                  return AppAnimations.staggeredList(
+                    index: index,
+                    duration: AppAnimations.normal,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: index == 0 ? 0 : 12,
+                      ),
+                      child: SizedBox(
+                        width: 280,
+                        child: MatchCard(match: matches[index]),
+                      ),
                     ),
                   );
                 },

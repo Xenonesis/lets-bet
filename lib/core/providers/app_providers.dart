@@ -227,4 +227,6 @@ final walletProvider = FutureProvider<Wallet?>((ref) async {
 
 // UI State
 final selectedTabProvider = StateProvider<int>((ref) => 0);
-final themeProvider = StateProvider<bool>((ref) => false); // false = light, true = dark
+
+// Theme Mode Provider: 'light', 'dark', or 'system'
+final themeModeProvider = StateProvider<String>((ref) => 'system');
