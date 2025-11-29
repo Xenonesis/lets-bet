@@ -5,7 +5,28 @@ import { v } from "convex/values";
 export const getById = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.userId);
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      return null;
+    }
+    
+    // Format for Flutter app
+    return {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      country: user.country,
+      isVerified: user.isVerified,
+      kycStatus: user.kycStatus,
+      isActive: user.isActive,
+      role: user.role,
+      createdAt: new Date(user.createdAt).toISOString(),
+      lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : null,
+    };
   },
 });
 
@@ -27,7 +48,29 @@ export const updateProfile = mutation({
     );
     
     await ctx.db.patch(userId, cleanUpdates);
-    return await ctx.db.get(userId);
+    const user = await ctx.db.get(userId);
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    // Format for Flutter app
+    return {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      country: user.country,
+      isVerified: user.isVerified,
+      kycStatus: user.kycStatus,
+      isActive: user.isActive,
+      role: user.role,
+      createdAt: new Date(user.createdAt).toISOString(),
+      lastLogin: user.lastLogin ? new Date(user.lastLogin).toISOString() : null,
+    };
   },
 });
 

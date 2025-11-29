@@ -1,6 +1,24 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Query all matches
+export const list = query({
+  args: { 
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const matches = await ctx.db
+      .query("matches")
+      .order("desc")
+      .collect();
+    
+    if (args.limit) {
+      return matches.slice(0, args.limit);
+    }
+    return matches;
+  },
+});
+
 // Query matches by league
 export const listByLeague = query({
   args: { 
@@ -8,16 +26,16 @@ export const listByLeague = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db
+    let matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("leagueId"), args.leagueId))
       .order("desc");
     
     if (args.limit) {
-      query = query.take(args.limit);
+      matchQuery = matchQuery.take(args.limit);
     }
     
-    return await query.collect();
+    return await matchQuery.collect();
   },
 });
 
@@ -25,16 +43,16 @@ export const listByLeague = query({
 export const getFeatured = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    let query = ctx.db
+    let matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("isFeatured"), true))
       .order("asc");
     
     if (args.limit) {
-      query = query.take(args.limit);
+      matchQuery = matchQuery.take(args.limit);
     }
     
-    return await query.collect();
+    return await matchQuery.collect();
   },
 });
 
@@ -42,16 +60,16 @@ export const getFeatured = query({
 export const getLive = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    let query = ctx.db
+    let matchQuery = ctx.db
       .query("matches")
       .filter((q) => q.eq(q.field("status"), "live"))
       .order("asc");
     
     if (args.limit) {
-      query = query.take(args.limit);
+      matchQuery = matchQuery.take(args.limit);
     }
     
-    return await query.collect();
+    return await matchQuery.collect();
   },
 });
 
@@ -63,7 +81,7 @@ export const getUpcoming = query({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    let query = ctx.db
+    let matchQuery = ctx.db
       .query("matches")
       .filter((q) => 
         q.and(
@@ -73,16 +91,16 @@ export const getUpcoming = query({
       );
     
     if (args.sportId) {
-      query = query.filter((q) => q.eq(q.field("sportId"), args.sportId));
+      matchQuery = matchQuery.filter((q) => q.eq(q.field("sportId"), args.sportId));
     }
     
-    query = query.order("asc");
+    matchQuery = matchQuery.order("asc");
     
     if (args.limit) {
-      query = query.take(args.limit);
+      matchQuery = matchQuery.take(args.limit);
     }
     
-    return await query.collect();
+    return await matchQuery.collect();
   },
 });
 

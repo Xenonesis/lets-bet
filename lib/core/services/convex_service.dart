@@ -24,19 +24,23 @@ class ConvexService {
         Uri.parse('$_baseUrl/api/query'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'function': functionName,
+          'path': functionName,
           'args': args,
+          'format': 'json',
         }),
       ).timeout(AppConstants.apiTimeout);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['result'] as T;
+        if (data['status'] == 'success') {
+          return data['value'] as T;
+        } else {
+          throw ConvexException('Query failed: ${data['errorMessage']}');
+        }
       } else {
-        throw ConvexException('Query failed: ${response.statusCode}');
+        throw ConvexException('Query failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       throw ConvexException('Query error: $e');
@@ -50,22 +54,56 @@ class ConvexService {
         Uri.parse('$_baseUrl/api/mutation'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'function': functionName,
+          'path': functionName,
           'args': args,
+          'format': 'json',
         }),
       ).timeout(AppConstants.apiTimeout);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['result'] as T;
+        if (data['status'] == 'success') {
+          return data['value'] as T;
+        } else {
+          throw ConvexException('Mutation failed: ${data['errorMessage']}');
+        }
       } else {
-        throw ConvexException('Mutation failed: ${response.statusCode}');
+        throw ConvexException('Mutation failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       throw ConvexException('Mutation error: $e');
+    }
+  }
+
+  // Action function (server-side logic)
+  Future<T> action<T>(String functionName, Map<String, dynamic> args) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/action'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'path': functionName,
+          'args': args,
+          'format': 'json',
+        }),
+      ).timeout(AppConstants.apiTimeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'success') {
+          return data['value'] as T;
+        } else {
+          throw ConvexException('Action failed: ${data['errorMessage']}');
+        }
+      } else {
+        throw ConvexException('Action failed: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      throw ConvexException('Action error: $e');
     }
   }
 

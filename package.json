@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "convex dev",
     "build": "convex deploy",
-    "predev": "convex codegen"
+    "predev": "convex codegen",
+    "test": "node verify_backend.js",
+    "test:all": "node test_all_features.js",
+    "test:flutter": "node test_flutter_format.js"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

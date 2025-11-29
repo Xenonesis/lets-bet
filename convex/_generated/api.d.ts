@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as auth_actions from "../auth_actions.js";
 import type * as bets from "../bets.js";
 import type * as init_data from "../init_data.js";
 import type * as leagues from "../leagues.js";
@@ -26,6 +27,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  auth_actions: typeof auth_actions;
   bets: typeof bets;
   init_data: typeof init_data;
   leagues: typeof leagues;

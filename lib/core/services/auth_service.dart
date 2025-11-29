@@ -44,8 +44,8 @@ class AuthService {
 
   Future<User> login(String email, String password) async {
     try {
-      final response = await _convexService.mutation<Map<String, dynamic>>(
-        'auth:login',
+      final response = await _convexService.action<Map<String, dynamic>>(
+        'auth_actions:login',
         {
           'email': email.toLowerCase(),
           'password': password,
@@ -75,8 +75,8 @@ class AuthService {
     String? phone,
   }) async {
     try {
-      final response = await _convexService.mutation<Map<String, dynamic>>(
-        'auth:register',
+      final response = await _convexService.action<Map<String, dynamic>>(
+        'auth_actions:register',
         {
           'email': email.toLowerCase(),
           'username': username,
@@ -157,8 +157,8 @@ class AuthService {
         throw AuthException('User not authenticated');
       }
 
-      await _convexService.mutation<Map<String, dynamic>>(
-        'auth:changePassword',
+      await _convexService.action<Map<String, dynamic>>(
+        'auth_actions:changePassword',
         {
           'userId': _currentUser!.id,
           'currentPassword': currentPassword,
@@ -209,8 +209,8 @@ class AuthService {
     if (_refreshToken == null) return;
 
     try {
-      final response = await _convexService.mutation<Map<String, dynamic>>(
-        'auth:refreshToken',
+      final response = await _convexService.action<Map<String, dynamic>>(
+        'auth_actions:refreshToken',
         {'refreshToken': _refreshToken},
       );
 
