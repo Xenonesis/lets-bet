@@ -79,7 +79,7 @@ class SportsScreen extends ConsumerWidget {
           itemCount: 8,
           itemBuilder: (context, index) => Container(
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
           ),

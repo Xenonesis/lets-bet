@@ -187,7 +187,7 @@ class _BetSlipScreenState extends ConsumerState<BetSlipScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -240,10 +240,7 @@ class _BetSlipScreenState extends ConsumerState<BetSlipScreen> {
                       wallet.when(
                         data: (walletData) => Text(
                           'Wallet Balance: ₹${walletData?.balance.toStringAsFixed(2) ?? '0.00'}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                         loading: () => const SizedBox.shrink(),
                         error: (_, __) => const SizedBox.shrink(),
@@ -309,19 +306,17 @@ class _EmptyBetSlip extends StatelessWidget {
           Icon(
             Icons.shopping_cart_outlined,
             size: 64,
-            color: Colors.grey[400],
+            color: Theme.of(context).textTheme.bodySmall?.color,
           ),
           const SizedBox(height: 16),
           Text(
             'Your bet slip is empty',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
             'Add some selections to get started',
-            style: TextStyle(color: Colors.grey[500]),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 24),
           ElevatedButton(

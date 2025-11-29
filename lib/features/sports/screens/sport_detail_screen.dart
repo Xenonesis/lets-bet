@@ -39,7 +39,7 @@ class SportDetailScreen extends ConsumerWidget {
                         return Container(
                           height: 80,
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Center(
@@ -107,7 +107,7 @@ class SportDetailScreen extends ConsumerWidget {
                           width: 120,
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -178,7 +178,7 @@ class SportDetailScreen extends ConsumerWidget {
                     height: 180,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),

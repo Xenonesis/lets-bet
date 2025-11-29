@@ -18,23 +18,24 @@ class SocialLoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: Icon(
         icon,
         size: 20,
-        color: textColor ?? Colors.grey[700],
+        color: textColor ?? Theme.of(context).textTheme.bodyLarge?.color,
       ),
       label: Text(
         label,
         style: TextStyle(
-          color: textColor ?? Colors.grey[700],
+          color: textColor ?? Theme.of(context).textTheme.bodyLarge?.color,
           fontWeight: FontWeight.w500,
         ),
       ),
       style: OutlinedButton.styleFrom(
-        backgroundColor: backgroundColor ?? Colors.white,
-        side: BorderSide(color: Colors.grey[300]!),
+        backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
+        side: BorderSide(color: Theme.of(context).dividerColor),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

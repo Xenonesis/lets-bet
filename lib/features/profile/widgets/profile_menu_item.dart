@@ -41,14 +41,12 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.grey[600],
-        ),
+        style: Theme.of(context).textTheme.bodySmall,
       ),
-      trailing: trailing ?? const Icon(
+      trailing: trailing ?? Icon(
         Icons.arrow_forward_ios,
         size: 16,
-        color: Colors.grey,
+        color: Theme.of(context).textTheme.bodySmall?.color,
       ),
       onTap: onTap,
     );

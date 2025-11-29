@@ -53,14 +53,11 @@ class BetHistoryItem extends StatelessWidget {
             // Date and Bet ID
             Text(
               dateText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             Text(
               'Bet ID: ${bet.id}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
                 fontFamily: 'monospace',
               ),
             ),
@@ -128,10 +125,7 @@ class BetHistoryItem extends StatelessWidget {
                 children: [
                   Text(
                     'Cashed Out',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
                     '₹${bet.cashOutValue!.toStringAsFixed(2)}',
