@@ -67,6 +67,47 @@ class AppTheme {
     end: Alignment.bottomRight,
   );
 
+  // Shadows for depth
+  static List<BoxShadow> get shadowSm => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.04),
+      blurRadius: 4,
+      offset: const Offset(0, 2),
+    ),
+  ];
+  
+  static List<BoxShadow> get shadowMd => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.06),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
+    ),
+  ];
+  
+  static List<BoxShadow> get shadowLg => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 16,
+      offset: const Offset(0, 8),
+    ),
+  ];
+  
+  static List<BoxShadow> get shadowDarkSm => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 4,
+      offset: const Offset(0, 2),
+    ),
+  ];
+  
+  static List<BoxShadow> get shadowDarkMd => [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.3),
+      blurRadius: 8,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
   // Text Styles - Professional Typography Scale
   static TextTheme _buildTextTheme(Color primaryColor, Color secondaryColor, Color tertiaryColor) {
     return TextTheme(
@@ -297,7 +338,6 @@ class AppTheme {
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
-          side: const BorderSide(color: lightBorder, width: 1),
         ),
         color: lightSurface,
         surfaceTintColor: Colors.transparent,
@@ -478,7 +518,6 @@ class AppTheme {
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
-          side: const BorderSide(color: darkBorder, width: 1),
         ),
         color: darkSurface,
         surfaceTintColor: Colors.transparent,

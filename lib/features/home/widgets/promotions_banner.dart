@@ -23,6 +23,7 @@ class PromotionsBanner extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: isDark ? AppTheme.shadowDarkMd : AppTheme.shadowMd,
       ),
       child: Row(
         children: [

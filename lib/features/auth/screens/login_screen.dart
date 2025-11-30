@@ -74,21 +74,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 88,
+                      height: 88,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             Theme.of(context).primaryColor,
                             Theme.of(context).primaryColor.withOpacity(0.7),
                           ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).primaryColor.withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: const Icon(
-                        Icons.sports_soccer,
+                        Icons.sports_rounded,
                         color: Colors.white,
-                        size: 40,
+                        size: 44,
                       ),
                     ),
                     

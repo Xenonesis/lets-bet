@@ -18,7 +18,7 @@ class BetSlipFab extends ConsumerWidget {
       onPressed: () => AppNavigation.toBetSlip(context),
       backgroundColor: Theme.of(context).primaryColor,
       foregroundColor: Colors.white,
-      elevation: 6,
+      elevation: 8,
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

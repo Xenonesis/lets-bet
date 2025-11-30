@@ -6,39 +6,54 @@ class SportCard extends StatelessWidget {
   final Sport sport;
   final VoidCallback? onTap;
 
-  const SportCard({
-    super.key,
-    required this.sport,
-    this.onTap,
-  });
+  const SportCard({super.key, required this.sport, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final Color themeColor = Color(int.parse(sport.themeColor.replaceFirst('#', '0xFF')));
+    final Color themeColor = Color(
+      int.parse(sport.themeColor.replaceFirst('#', '0xFF')),
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return AnimatedCard(
       onTap: onTap,
-      child: Card(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isDark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           child: Row(
             children: [
               // Sport Icon
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: themeColor.withOpacity(isDark ? 0.2 : 0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  color: themeColor.withOpacity(isDark ? 0.2 : 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(
-                  child: _getSportIcon(sport.code),
-                ),
+                child: Center(child: _getSportIcon(sport.code)),
               ),
-              
-              const SizedBox(width: 12),
-              
+
+              const SizedBox(width: 14),
+
               // Sport Name
               Expanded(
                 child: Text(
@@ -50,12 +65,19 @@ class SportCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              
+
               // Arrow
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: Theme.of(context).textTheme.bodySmall?.color,
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 12,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
               ),
             ],
           ),
@@ -63,7 +85,7 @@ class SportCard extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _getSportIcon(String sportCode) {
     IconData iconData;
     switch (sportCode.toLowerCase()) {
@@ -92,13 +114,11 @@ class SportCard extends StatelessWidget {
       default:
         iconData = Icons.sports;
     }
-    
-    final Color themeColor = Color(int.parse(sport.themeColor.replaceFirst('#', '0xFF')));
-    
-    return Icon(
-      iconData,
-      size: 24,
-      color: themeColor,
+
+    final Color themeColor = Color(
+      int.parse(sport.themeColor.replaceFirst('#', '0xFF')),
     );
+
+    return Icon(iconData, size: 24, color: themeColor);
   }
 }

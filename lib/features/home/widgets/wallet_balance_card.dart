@@ -19,6 +19,7 @@ class WalletBalanceCard extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: isDark ? AppTheme.shadowDarkMd : AppTheme.shadowLg,
       ),
       child: walletAsync.when(
         data: (wallet) => Column(

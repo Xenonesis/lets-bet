@@ -69,21 +69,42 @@ class LiveMatchesSection extends ConsumerWidget {
           data: (matches) {
             if (matches.isEmpty) {
               return Container(
-                height: 100,
+                height: 160,
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor,
+                    width: 1,
+                  ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.live_tv_outlined, color: Colors.grey),
-                      SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.errorColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.live_tv_outlined,
+                          size: 40,
+                          color: AppTheme.errorColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
-                        'No live matches at the moment',
-                        style: TextStyle(color: Colors.grey),
+                        'No live matches',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Check back later for live action',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -125,30 +146,56 @@ class LiveMatchesSection extends ConsumerWidget {
                 child: Container(
                   width: 260,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor.withOpacity(0.4),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           error: (error, stack) => Container(
-            height: 100,
+            height: 140,
             decoration: BoxDecoration(
-              color: Colors.red[50],
-              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+                width: 1,
+              ),
             ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, color: Colors.red[400]),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Failed to load live matches',
-                    style: TextStyle(color: Colors.red[600]),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 36,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Failed to load live matches',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
